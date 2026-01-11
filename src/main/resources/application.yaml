@@ -1,7 +1,10 @@
-camunda.bpm:
-  admin-user:
-    id: demo
-    password: demo
-    firstName: Demo
-  filter:
-    create: All tasks
+camunda:
+  bpm:
+    client:
+      base-url: https://camunda25.f4.htw-berlin.de/engine-rest
+      worker-id: emotion-standort-worker
+      lock-duration: 20000
+      async-response-timeout: 10000
+      basic-auth:
+        username: "05"
+        password: "HTWberlin1."
