@@ -1,34 +1,35 @@
 package org.camunda.bpm.getstarted.loanapproval;
 
 import org.camunda.bpm.client.ExternalTaskClient;
-import java.util.Base64;
-import java.util.Map;
 
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-
-import java.net.http.*;
 import java.net.URI;
+import java.net.http.*;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class StandortWorker {
 
-    private static final String USER = "05";
-    private static final String PASS = "HTWberlin1.";
-    private static final String ORS_KEY = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImMxOTE5M2Y2NTkzZjRkNTZiYWQ4MjkxZTI4YjYzN2U4ZjEwYmRjNTdmMTM5ZjVkNGE5YTFjOTIzIiwiaCI6Im11cm11cjY0In0="; // gleicher Key wie im Groovy-Script
-
     public static void main(String[] args) {
 
-        String auth = USER + ":" + PASS;
-        String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes());
-        String basicAuthHeader = "Basic " + encodedAuth;
+        String camundaUrl = mustGetEnv("CAMUNDA_REST_URL");     // z.B. https://.../engine-rest
+        String username   = mustGetEnv("CAMUNDA_USERNAME");     // z.B. 05
+        String password   = mustGetEnv("CAMUNDA_PASSWORD");     // z.B. HTWberlin1.
+        String orsKey     = mustGetEnv("ORS_KEY");              // OpenRouteService Key
 
         ExternalTaskClient client = ExternalTaskClient.create()
-                .baseUrl("https://camunda25.f4.htw-berlin.de/engine-rest")
+                .baseUrl(camundaUrl)
                 .asyncResponseTimeout(10000)
-                .addInterceptor(new BasicAuthInterceptor(basicAuthHeader))
+                .addInterceptor((requestContext) -> {
+                    String auth = username + ":" + password;
+                    String encoded = Base64.getEncoder()
+                            .encodeToString(auth.getBytes(StandardCharsets.UTF_8));
+                    requestContext.addHeader("Authorization", "Basic " + encoded);
+                })
                 .build();
 
         HttpClient http = HttpClient.newHttpClient();
@@ -37,16 +38,16 @@ public class StandortWorker {
                 .lockDuration(20000)
                 .handler((externalTask, externalTaskService) -> {
                     try {
-                        String standort = externalTask.getVariable("Standort");
+                        String standort = (String) externalTask.getVariable("Standort");
                         System.out.println(">>> Worker hat Task geholt, Standort = " + standort);
+
                         if (standort == null || standort.trim().isEmpty()) {
                             throw new RuntimeException("Standort ist leer");
                         }
 
-
                         String encoded = URLEncoder.encode(standort, StandardCharsets.UTF_8);
                         String geoUrl = "https://api.openrouteservice.org/geocode/search"
-                                + "?api_key=" + ORS_KEY + "&text=" + encoded;
+                                + "?api_key=" + orsKey + "&text=" + encoded;
 
                         HttpRequest geoReq = HttpRequest.newBuilder()
                                 .uri(URI.create(geoUrl))
@@ -71,6 +72,7 @@ public class StandortWorker {
                         double destLat = coords.getDouble(1);
                         System.out.println("Geocode-Koordinate: " + destLon + "," + destLat);
 
+                        // Ursprung (Berlin)
                         double originLon = 13.4050;
                         double originLat = 52.5200;
 
@@ -84,7 +86,7 @@ public class StandortWorker {
                         HttpRequest matrixReq = HttpRequest.newBuilder()
                                 .uri(URI.create("https://api.openrouteservice.org/v2/matrix/driving-car"))
                                 .header("Content-Type", "application/json")
-                                .header("Authorization", ORS_KEY)
+                                .header("Authorization", orsKey)
                                 .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
                                 .build();
 
@@ -101,14 +103,15 @@ public class StandortWorker {
                         JSONArray distances = matrixJson.getJSONArray("distances");
                         JSONArray durations = matrixJson.getJSONArray("durations");
 
-                        double distKm = distances.getJSONArray(0).getDouble(1);      // [0][1] wie im Groovy-Script [web:444]
-                        double durationSec = durations.getJSONArray(0).getDouble(1); // [0][1]
+                        double distKm = distances.getJSONArray(0).getDouble(1);
+                        double durationSec = durations.getJSONArray(0).getDouble(1);
                         double durationMin = durationSec / 60.0;
 
                         externalTaskService.complete(externalTask, Map.of(
                                 "DistanzKm", distKm,
                                 "FahrzeitMin", durationMin
                         ));
+
                     } catch (Exception e) {
                         e.printStackTrace();
                         externalTaskService.handleFailure(
@@ -121,5 +124,13 @@ public class StandortWorker {
                     }
                 })
                 .open();
+    }
+
+    private static String mustGetEnv(String name) {
+        String v = System.getenv(name);
+        if (v == null || v.isBlank()) {
+            throw new IllegalStateException("Fehlende Umgebungsvariable: " + name);
+        }
+        return v;
     }
 }

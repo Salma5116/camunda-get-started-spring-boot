@@ -15,12 +15,12 @@ public class SlackWorker {
 
     public static void main(String[] args) {
 
-        String camundaUrl = mustGetEnv("CAMUNDA_REST_URL");  // https://.../engine-rest
+        String camundaUrl = mustGetEnv("CAMUNDA_REST_URL");
         String username   = mustGetEnv("CAMUNDA_USERNAME1");
         String password   = mustGetEnv("CAMUNDA_PASSWORD1");
 
-        String slackToken = mustGetEnv("SLACK_BOT_TOKEN");   // xoxb-...
-        String slackChan  = mustGetEnv("SLACK_CHANNEL");     // C0123... oder #channel
+        String slackToken = mustGetEnv("SLACK_BOT_TOKEN");
+        String slackChan  = mustGetEnv("SLACK_CHANNEL");
 
         ExternalTaskClient client = ExternalTaskClient.create()
                 .baseUrl(camundaUrl)
