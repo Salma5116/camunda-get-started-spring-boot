@@ -13,6 +13,7 @@ import org.json.JSONObject;
 public class StandortWorker {
 
     private static final String ORS_KEY = System.getenv("ORS_KEY");
+    //Umgebungsvariable einrichten: ORS_KEY= eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImMxOTE5M2Y2NTkzZjRkNTZiYWQ4MjkxZTI4YjYzN2U4ZjEwYmRjNTdmMTM5ZjVkNGE5YTFjOTIzIiwiaCI6Im11cm11cjY0In0=
 
     public static void main(String[] args) {
 
