@@ -14,7 +14,7 @@ slack:
   channel: ${SLACK_CHANNEL} #C0A7LFA1H55
 
 ors:
-  key: ${ORS_KEY}
+  key: ${ORS_KEY} #eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImJiODE5YjAyMDYyZDRhNTZhZWRkMmI0ZmQwZjYzNzhkODFiYTg0N2NjMjM4ZjJlM2VjNmYzYzAxIiwiaCI6Im11cm11cjY0In0=
 
 camunda.bpm:
   admin-user:
