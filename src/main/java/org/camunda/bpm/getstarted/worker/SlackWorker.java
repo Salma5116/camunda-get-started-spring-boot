@@ -1,4 +1,4 @@
-package org.camunda.bpm.getstarted.loanapproval;
+package org.camunda.bpm.getstarted.worker;
 
 import java.net.URI;
 import java.net.http.HttpClient;

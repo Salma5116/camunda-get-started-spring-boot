@@ -1,14 +1,3 @@
-camunda:
-  bpm:
-    client:
-      base-url: ${CAMUNDA_REST_URL} //https://camunda25.f4.htw-berlin.de/engine-rest
-      worker-id: emotion-standort-worker
-      lock-duration: 20000
-      async-response-timeout: 10000
-      basic-auth:
-        username: ${CAMUNDA_USERNAME} //"05"
-        password: ${CAMUNDA_PASSWORD} //"HTWberlin1."
-
 camunda1:
   bpm:
     client:
@@ -26,3 +15,11 @@ slack:
 
 ors:
   key: ${ORS_KEY}
+
+camunda.bpm:
+  admin-user:
+    id: demo
+    password: demo
+    firstName: Demo
+  filter:
+    create: All tasks
