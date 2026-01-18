@@ -1,17 +1,17 @@
 camunda1:
   bpm:
     client:
-      base-url: ${CAMUNDA_REST_URL} //https://camunda25.f4.htw-berlin.de/engine-rest
+      base-url: ${CAMUNDA_REST_URL} #http://localhost:8080/engine-rest
       worker-id: emotion-slack-worker
       lock-duration: 20000
       async-response-timeout: 10000
       basic-auth:
-        username: ${CAMUNDA_USERNAME1}
-        password: ${CAMUNDA_PASSWORD1}
+        username: ${CAMUNDA_USERNAME1} #demo
+        password: ${CAMUNDA_PASSWORD1} #demo
 
 slack:
-  bot-token: ${SLACK_BOT_TOKEN}
-  channel: ${SLACK_CHANNEL}
+  bot-token: ${SLACK_BOT_TOKEN} #xoxb-10258495898695-10277549418772-4NtEOCRCwKHKqp0hXmB3GJSu
+  channel: ${SLACK_CHANNEL} #C0A7LFA1H55
 
 ors:
   key: ${ORS_KEY}
