@@ -38,11 +38,17 @@ public class SlackWorker {
         client.subscribe("slackNotify")
                 .lockDuration(20000)
                 .handler((task, service) -> {
-                    sendSlackMessage(slackToken, slackChan,
-                            "✅ External Task 'slackNotify' wurde verarbeitet!");
+
+                    String text = (String) task.getVariable("slackText");
+                    if (text == null || text.isBlank()) {
+                        text = "✅ slackNotify verarbeitet";
+                    }
+
+                    sendSlackMessage(slackToken, slackChan, text);
                     service.complete(task);
                 })
                 .open();
+
     }
 
     private static void sendSlackMessage(String token, String channel, String text) {
